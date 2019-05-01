@@ -198,7 +198,35 @@ EXAMPLES = r'''
 
 '''
 RETURN = r'''
-
+path:
+    description: Equal to the path (or dest) variable passed as an argument. 
+    returned: state != link and state != hard
+    type: str
+    sample: /path/to/file.txt
+dest:
+    description: Equal to the dest variable passed as an argument. That is, the file which links to the other file.
+    returned: state is link or hard
+    type: str
+    sample: /path/to/file.txt
+diff:
+    description: An object describing the state before and after the task.
+    returned: sometimes
+    type: dict
+    sample: 
+      after: 
+        path: file.txt
+        state: absent
+      before:
+        path: file.txt
+        state: file
+state:
+    description: 
+      - Equal to the nature of the path after the task is complete.
+      - If the state argument is touch, the returned state value will be one of file, directory, link or absent.
+      - If the state argument is not touch, the state returned on success equals the state argument.
+    returned: Always
+    type: str
+    sample: file
 '''
 
 import errno
@@ -579,7 +607,7 @@ def ensure_directory(path, follow, recurse, timestamps):
     if prev_state == 'absent':
         # Create directory and assign permissions to it
         if module.check_mode:
-            return {'changed': True, 'diff': diff}
+            return {'path': path, 'changed': True, 'diff': diff}
         curpath = ''
 
         try:
